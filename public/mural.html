@@ -75,7 +75,6 @@
                                 <option value="3">Romance</option>
                                 <option value="4">Poesia</option>
                             </select>
-
                                 <br>
                                 <br>
                             </label>
@@ -87,7 +86,7 @@
                              <label>
                                 Preço de Venda:
                                 <br>
-                                <input name="precoV" id="precoV" maxlength="100" type="number">
+                                <input name="precoVenda" id="precoV" maxlength="100" type="number">
                             </label>
                              <label>
                                 Quantidade:
@@ -117,6 +116,31 @@
 </html>
 <script>
 
+function validarPrecoVenda(precoC, precoV, genero) {
+
+  if (precoCompra >= 100 && (genero == "2" || genero == "3")) {
+    if (precoVenda < precoCompra ) {
+     precoV =  precoV * 1.225
+      console.log(precoV)
+      return false;
+    }
+  } else if (precoCompra <= 50 && (genero == "4" || genero == "2")) {
+    if (precoVenda < precoCompra ) {
+     precoV =  precoV * 1.25
+     console.log(precoV)
+      return false;
+    }
+  } else if (precoCompra > 50 && precoCompra < 100 && genero == "1") {
+    if (precoVenda < precoCompra) {
+     precoV =  precoV *  1.275;
+     console.log(precoV)
+      return false;
+    }
+  }
+
+  return true;
+}
+
    function publicar() {
 
     var corpo = {
@@ -137,9 +161,12 @@
         body: JSON.stringify(corpo)
     }).then(function (resposta) {
         console.log('Resposta do servidor:', resposta.status, resposta.statusText);
+        window.location("./mural.html")
+
         if (resposta.ok) {
             atualizarFeed();
-        } 
+            
+        }
     }).catch(function (erro) {
         console.error("Erro no fetch:", erro);
     });
@@ -237,7 +264,6 @@
                         feed.appendChild(divPublicacao);
                     }
 
-                    finalizarAguardar();
                 });
             } else {
                 throw ('Houve um erro na API!');
@@ -249,7 +275,7 @@
     }
 
     window.onload = function() {
-  atualizarFeed();
+    atualizarFeed();
 };
 
 
