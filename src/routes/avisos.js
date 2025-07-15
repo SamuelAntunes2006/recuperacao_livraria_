@@ -15,16 +15,9 @@ router.get("/pesquisar/:descricao", function (req, res) {
     avisoController.pesquisarDescricao(req, res);
 });
 
-router.post("/publicar/:idUsuario", function (req, res) {
+router.post("/publicar", function (req, res) {
     avisoController.publicar(req, res);
 });
-
-router.post("/publicarAutor/:nomeAutor"), function(req,res){
-    avisoController.publicarAutor(req,res)
-}
-router.post("/publicarGenero/:nomeGenero"), function(req,res){
-    avisoController.publicarGenero(req,res)
-}
 
 router.put("/editar/:idAviso", function (req, res) {
     avisoController.editar(req, res);

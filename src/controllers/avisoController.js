@@ -61,53 +61,36 @@ function pesquisarDescricao(req, res) {
 }
 
 
-function publicarAutor(req,res){
-    var nomeAutor = req.body.autor;
 
-    autorModel.publicar(nomeAutor).then(
-                function (resultado) {
-                    res.json(resultado);
-                }
-            )
-            .catch(
-                function (erro) {
-                    console.log(erro);
-                    console.log("Houve um erro ao realizar o post: ", erro.sqlMessage);
-                    res.status(500).json(erro.sqlMessage);
-                }
-            );
+async function publicar(req, res) {
+    let fk_autor;
     
-} 
-function publicar(req, res) {
-    publicarAutor(req,res)
-    publicarGenero(req,res)
-    var titulo = req.body.titulo;
-    var precoCompra = req.body.precoCompra;
-    var precoVenda = req.body.precoVenda;
-    var quantidade = req.body.quantidade;
-    var fk_genero = req.body.quantidade;
-   // var idUsuario = req.params.idUsuario;
+    try {
+        const { titulo, precoCompra, precoVenda, quantidade, genero, autor, idUsuario } = req.body;
+        const resultadoAutor = await avisoModel.buscarAutorPorNome(autor);
 
+        if (resultadoAutor.length > 0) {
+            fk_autor = resultadoAutor[0].id;
+        } else {
+            const resultadoInserirAutor = await avisoModel.publicarAutor(autor);
+            fk_autor = resultadoInserirAutor.insertId;
+        }
+        
+        const resultadoLivro = await avisoModel.publicar(
+            titulo,
+            fk_autor,
+            genero,
+            precoCompra,
+            precoVenda,
+            quantidade,
+            idUsuario
+        );
 
-    if (titulo == undefined) {
-        res.status(400).send("O título está indefinido!");
-    //} else if (idUsuario == undefined) {
-    //   res.status(403).send("O id do usuário está indefinido!");
-    } else {
-      
-        avisoModel.publicar(titulo,fk_genero,precoCompra,precoVenda,quantidade,idUsuario)
-            .then(
-                function (resultado) {
-                    res.json(resultado);
-                }
-            )
-            .catch(
-                function (erro) {
-                    console.log(erro);
-                    console.log("Houve um erro ao realizar o post: ", erro.sqlMessage);
-                    res.status(500).json(erro.sqlMessage);
-                }
-            );
+        res.json(resultadoLivro);
+
+    } catch (erro) {
+        console.log(erro);
+        res.status(500).json(erro.sqlMessage);
     }
 }
 
@@ -131,6 +114,8 @@ function editar(req, res) {
 
 }
 
+
+
 function deletar(req, res) {
     var idAviso = req.params.idAviso;
 
@@ -153,7 +138,6 @@ module.exports = {
     listar,
     listarPorUsuario,
     pesquisarDescricao,
-    publicarAutor,
     publicar,
     editar,
     deletar
