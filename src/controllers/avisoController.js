@@ -63,9 +63,9 @@ function pesquisarDescricao(req, res) {
 
 
 async function publicar(req, res) {
+    
     let fk_autor;
     
-    try {
         const { titulo, precoCompra, precoVenda, quantidade, genero, autor, idUsuario } = req.body;
         const resultadoAutor = await avisoModel.buscarAutorPorNome(autor);
 
@@ -88,11 +88,8 @@ async function publicar(req, res) {
 
         res.json(resultadoLivro);
 
-    } catch (erro) {
-        console.log(erro);
-        res.status(500).json(erro.sqlMessage);
     }
-}
+
 
 function editar(req, res) {
     var novaDescricao = req.body.descricao;

@@ -23,29 +23,22 @@
 
     <div class="janela">
 
-
         <div class="header-left">
 
-            <h1>AquaTech</h1>
+            <h1>Saraiva</h1>
 
             <div class="hello">
-                <h3>Olá, <span id="b_usuario">usuário</span>!</h3>
+                <h3>Bem vindo a Livraria,!</h3>
             </div>
-
-            <div class="btn-nav-white">
-                <a href="cards.html">
-                    <h3>Aquários</h3>
-                </a>
-            </div>
-
+            
             <div class="btn-nav-white">
                 <a href="./dashboard.html">
-                    <h3>Gráficos</h3>
+                    <h3>dashboard</h3>
                 </a>
             </div>
 
             <div class="btn-nav">
-                <h3>Mural de Avisos</h3>
+                <h3>Publicar Livro</h3>
             </div>
 
             <div class="btn-logout" onclick="limparSessao()">
@@ -56,14 +49,13 @@
 
         <div class="dash-right">
 
-
             <div class="avisos">
                 <div id="alerta">
                 </div>
-                <form class="container">
+                <div class="container">
                     <h1>Publicar um livro</h1>
                     <div class="div-form">
-                        <div id="form_postagem" method="post"  onsubmit="return publicar()">
+                        <form id="form_postagem" method="post"  onsubmit="publicar()">
                             <label>
                                 Título:
                                 <br>
@@ -72,27 +64,35 @@
                             <label>
                                 Autor:
                                 <br>
-                                <input name="titulo" id="autor" maxlength="100" type="text">
+                                <input name="autor" id="autor" maxlength="100" type="text">
                             </label>
                             <label>
                                 Genero:
                                 <br>
-                                <select name="" id=""></select>
+                            <select id="genero">
+                                <option value="1">Fantasia</option>
+                                <option value="2">horror</option>
+                                <option value="3">Romance</option>
+                                <option value="4">Poesia</option>
+                            </select>
+
+                                <br>
+                                <br>
                             </label>
                              <label>
                                 Preço de compra:
                                 <br>
-                                <input name="titulo" id="precoC" maxlength="100" type="text">
+                                <input name="precoC" id="precoC" maxlength="100" type="number">
                             </label>
                              <label>
                                 Preço de Venda:
                                 <br>
-                                <input name="titulo" id="precoV" maxlength="100" type="text">
+                                <input name="precoV" id="precoV" maxlength="100" type="number">
                             </label>
                              <label>
                                 Quantidade:
                                 <br>
-                                <input name="titulo" id="qntd" maxlength="100" type="text">
+                                <input name="qntd" id="qntd" maxlength="100" type="number">
                             </label>
                             <br>
                             <br>
@@ -102,11 +102,11 @@
                                 <button type="submit">Enviar</button>
                             </center>
                         </div>
+                    </form>
                     </div>
                     <h1>Livros na estante</h1>
                     <div class="div-results">
                         <div id="feed_container" class="feed-container">
-                        </form>
                     </div>
                 </div>
             </div>
@@ -114,50 +114,38 @@
     </div>
 
 </body>
-
 </html>
-
 <script>
-    
-    function publicar() {
-        var corpo = {
-            titulo: form_postagem.titulo.value,
-            Nomeautor: form_postagem.autor.value,
-            Nomegenero: form_postagem.genero.value,
-            precoCompra: form_postagem.precoC.value,
-            precoVenda: form_postagem.precoV.value,
-            quantidade: form_postagem.quantidade.value
-        }
 
-        fetch(`/avisos/publicar/`,{
-            method: "post",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(corpo)
-        }).then(function (resposta) {
+   function publicar() {
 
-            console.log("resposta: ", resposta);
+    var corpo = {
+        titulo: titulo.value,
+        autor: autor.value,
+        genero: Number(genero.value),
+        precoCompra: Number(precoC.value),
+        precoVenda: Number(precoV.value),
+        quantidade: Number(qntd.value),
+        idUsuario: 1
+    };
 
-            if (resposta.ok) {
-                window.alert("Post realizado com sucesso pelo usuario de ID: " + idUsuario + "!");
-                window.location = "/dashboard/mural.html";
-                limparFormulario();
-                finalizarAguardar();
-            } else if (resposta.status == 404) {
-                window.alert("Deu 404!");
-            } else {
-                throw ("Houve um erro ao tentar realizar a postagem! Código da resposta: " + resposta.status);
-            }
-        }).catch(function (resposta) {
-            console.log(`#ERRO: ${resposta}`);
-            finalizarAguardar();
-        });
+    fetch(`/avisos/publicar`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(corpo)
+    }).then(function (resposta) {
+        console.log('Resposta do servidor:', resposta.status, resposta.statusText);
+        if (resposta.ok) {
+            atualizarFeed();
+        } 
+    }).catch(function (erro) {
+        console.error("Erro no fetch:", erro);
+    });
 
-        return false;
-
-    }
-
+    return false;
+}
     function editar(idAviso) {
         sessionStorage.ID_POSTAGEM_EDITANDO = idAviso;
         console.log("cliquei em editar - " + idAviso);
@@ -206,7 +194,7 @@
                     for (let i = 0; i < resposta.length; i++) {
                         var publicacao = resposta[i];
 
-                        // criando e manipulando elementos do HTML via JavaScript
+            
                         var divPublicacao = document.createElement("div");
                         var spanID = document.createElement("span");
                         var spanTitulo = document.createElement("span");
@@ -220,15 +208,14 @@
                         var btnDeletar = document.createElement("button");
 
 
-                        spanID.innerHTML = "ID: <b>" + publicacao.idAviso + "</b>";
+                        spanID.innerHTML = "ID: <b>" + publicacao.idLivro + "</b>";
                         spanTitulo.innerHTML = "Título: <b>" + publicacao.titulo + "</b>";
-                        spanAutor.innerHTML = "Autor: <b>" + publicacao.autor + "</b>";
-                        spanGenero.innerHTML = "Genêro: <b>" + publicacao.genero + "</b>";
-                        spanPrecoC.innerHTML = "Preço de Compra: <b>" + publicacao.precoC + "</b>";
-                        spanPrecoV.innerHTML = "Preço de Venda: <b>" + publicacao.precoV + "</b>";
+                        spanAutor.innerHTML = "Autor: <b>" + publicacao.nomeAutor + "</b>";
+                        spanGenero.innerHTML = "Genêro: <b>" + publicacao.nomeGenero + "</b>";
+                        spanPrecoC.innerHTML = "Preço de Compra: <b>" + publicacao.precoCompra + "</b>";
+                        spanPrecoV.innerHTML = "Preço de Venda: <b>" + publicacao.precoVenda + "</b>";
                         spanQuantidade.innerHTML = "Quantidade: <b>" + publicacao.quantidade + "</b>";
-                        btnEditar.innerHTML = "Editar";
-                        btnDeletar.innerHTML = "Deletar";
+                    
 
                         divPublicacao.className = "publicacao";
                         spanTitulo.id = "inputNumero" + publicacao.idAviso;
@@ -238,23 +225,15 @@
 
                         divButtons.className = "div-buttons"
 
-                        btnEditar.className = "publicacao-btn-editar"
-                        btnEditar.id = "btnEditar" + publicacao.idAviso;
-                        btnEditar.setAttribute("onclick", `editar(${publicacao.idAviso})`);
-
-                        btnDeletar.className = "publicacao-btn-editar"
-                        btnDeletar.id = "btnDeletar" + publicacao.idAviso;
-                        btnDeletar.setAttribute("onclick", `deletar(${publicacao.idAviso})`);
-
                         divPublicacao.appendChild(spanID);
                         divPublicacao.appendChild(spanTitulo);
                         divPublicacao.appendChild(spanAutor);
+                        divPublicacao.appendChild(spanGenero)
                         divPublicacao.appendChild(spanPrecoC);
                         divPublicacao.appendChild(spanPrecoV);
                         divPublicacao.appendChild(spanQuantidade);
                         divPublicacao.appendChild(divButtons);
-                        divButtons.appendChild(btnEditar);
-                        divButtons.appendChild(btnDeletar);
+                
                         feed.appendChild(divPublicacao);
                     }
 
@@ -268,5 +247,10 @@
             finalizarAguardar();
         });
     }
+
+    window.onload = function() {
+  atualizarFeed();
+};
+
 
 </script>

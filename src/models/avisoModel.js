@@ -70,9 +70,6 @@ function buscarAutorPorNome(nomeAutor) {
     return database.executar(instrucaoSql);
 }
 
-function mostrarLivro(){
-    var instrucaoSql = ``
-}
 
 function publicarAutor(nomeAutor) {
     var instrucaoSql = `
